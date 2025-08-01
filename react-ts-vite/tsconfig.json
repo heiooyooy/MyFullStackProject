@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    // ... 其他选项
+    "noUnusedLocals": false, // 设置为 false 来关闭对未使用本地变量的检查
+    "noUnusedParameters": false // (可选) 设置为 false 来关闭对未使用参数的检查
+  },
+}

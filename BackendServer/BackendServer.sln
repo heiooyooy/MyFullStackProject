@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendServer", "BackendServer\BackendServer.csproj", "{DBA7EE93-87FD-4366-8182-554B9A03D2F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedModule", "SharedModule\SharedModule.csproj", "{24ADFF6A-0FA9-4074-BC8B-DCE333E21627}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQWorker", "RabbitMQWorker\RabbitMQWorker.csproj", "{F7F971CC-111D-4A79-86B4-135427706F90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{FDC4D384-C91A-46C7-88B3-B79F08798F9A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{403FAFED-22B2-4909-B20F-B7EBFFE01A27}"
+	ProjectSection(SolutionItems) = preProject
+		sharedsettings.json = sharedsettings.json
+		docker-compose.yml = docker-compose.yml
+		Dockerfile.BackendServer = Dockerfile.BackendServer
+		Dockerfile.KafkaWorkerService = Dockerfile.KafkaWorkerService
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaWorkerService", "KafkaWorkerService\KafkaWorkerService.csproj", "{98CB0E93-3994-4A62-810F-7CAFFF1232FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutboxProcessor", "OutboxProcessor\OutboxProcessor.csproj", "{486F04EC-0959-422E-80AA-B127EFFEE6DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticsearchService", "ElasticsearchService\ElasticsearchService.csproj", "{93C20AB5-4684-437B-B9A9-9F701C45DB77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBA7EE93-87FD-4366-8182-554B9A03D2F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBA7EE93-87FD-4366-8182-554B9A03D2F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBA7EE93-87FD-4366-8182-554B9A03D2F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBA7EE93-87FD-4366-8182-554B9A03D2F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24ADFF6A-0FA9-4074-BC8B-DCE333E21627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24ADFF6A-0FA9-4074-BC8B-DCE333E21627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24ADFF6A-0FA9-4074-BC8B-DCE333E21627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24ADFF6A-0FA9-4074-BC8B-DCE333E21627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7F971CC-111D-4A79-86B4-135427706F90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7F971CC-111D-4A79-86B4-135427706F90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7F971CC-111D-4A79-86B4-135427706F90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7F971CC-111D-4A79-86B4-135427706F90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDC4D384-C91A-46C7-88B3-B79F08798F9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDC4D384-C91A-46C7-88B3-B79F08798F9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDC4D384-C91A-46C7-88B3-B79F08798F9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDC4D384-C91A-46C7-88B3-B79F08798F9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98CB0E93-3994-4A62-810F-7CAFFF1232FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98CB0E93-3994-4A62-810F-7CAFFF1232FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98CB0E93-3994-4A62-810F-7CAFFF1232FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98CB0E93-3994-4A62-810F-7CAFFF1232FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{486F04EC-0959-422E-80AA-B127EFFEE6DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{486F04EC-0959-422E-80AA-B127EFFEE6DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486F04EC-0959-422E-80AA-B127EFFEE6DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{486F04EC-0959-422E-80AA-B127EFFEE6DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93C20AB5-4684-437B-B9A9-9F701C45DB77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93C20AB5-4684-437B-B9A9-9F701C45DB77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93C20AB5-4684-437B-B9A9-9F701C45DB77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93C20AB5-4684-437B-B9A9-9F701C45DB77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

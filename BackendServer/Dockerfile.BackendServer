@@ -1,0 +1,35 @@
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /source
+
+
+COPY BackendServer.sln .
+COPY BackendServer/BackendServer.csproj ./BackendServer/
+COPY SharedModule/SharedModule.csproj ./SharedModule/
+COPY RabbitMQWorker/RabbitMQWorker.csproj ./RabbitMQWorker/
+COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
+COPY OutboxProcessor/OutboxProcessor.csproj ./OutboxProcessor/
+COPY ElasticsearchService/ElasticsearchService.csproj ./ElasticsearchService/
+COPY KafkaWorkerService/KafkaWorkerService.csproj ./KafkaWorkerService/
+
+RUN dotnet restore "BackendServer.sln"
+
+COPY . .
+
+WORKDIR /source/BackendServer
+RUN dotnet publish -c Release -o /app/publish --no-restore
+
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+ENV ConnectionStrings__MySQLConnection="Server=mysql-db;Port=3306;Database=myapp_db;Uid=root;Pwd=YourStrong!MysqlPassw0rd;"
+ENV JWT__ISSUER="https://www.dejun-tu.com"
+ENV JWT__AUDIENCE="https://www.dejun-tu.com"
+ENV JWT__KEY="6mWi2glc0/bOEZGLEJdQoEQqQioEusMlj/GXKceLCuc="
+ENV Deepseek__ApiKey="sk-ef5a5ce6cb824ce6b0d3b2e7c30c3186"
+ENV ASPNETCORE_URLS=http://+:5000
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "BackendServer.dll"]

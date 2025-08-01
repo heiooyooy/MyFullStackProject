@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-KafkaWorkerService-764568ee-1a49-49bc-a937-c777eadf4df6</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="2.11.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.7" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\sharedsettings.json">
+            <Link>sharedsettings.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
+    </ItemGroup>
+</Project>

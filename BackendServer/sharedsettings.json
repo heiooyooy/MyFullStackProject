@@ -1,0 +1,29 @@
+{
+  "RabbitMq": {
+    "HostName": "localhost",
+    "UserName": "guest",
+    "Password": "guest",
+    "Port": 5672,
+    "VirtualHost": "/",
+    "ConnectionTimeout": 30000,
+    "RequestedHeartbeat": 60,
+    "AutomaticRecoveryEnabled": true,
+    "NetworkRecoveryInterval": 5000
+  },
+  "ConnectionStrings": {
+    "PostgresConnection": "Host=localhost;Port=5432;Username=postgres;Password=pass123;Database=mydb",
+    "RedisConnection": "localhost:6379",
+    "RabbitMQ": "amqp://guest:guest@localhost:5672"
+  },
+  "MongoDB": {
+    "ConnectionString": "mongodb://mongo:pass123@localhost:27017/?authSource=admin",
+    "Database": "test"
+  },
+  "Kafka": {
+    "BootstrapServers": "localhost:9092"
+  },
+  "Elasticsearch": {
+    "Uri": "http://localhost:9200"
+  },
+  "seq": "http://localhost:5341"
+}

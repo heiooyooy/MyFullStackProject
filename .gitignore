@@ -1,0 +1,199 @@
+# Ignore OS-specific files
+**/.DS_Store
+Thumbs.db
+
+# Ignore editor-specific files
+**/*.swp
+**/*.swo
+*~
+**/.idea/
+**/.vscode/
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sw?
+
+# Ignore build and dependency directories
+**/node_modules/
+**/build/
+**/dist/
+**/out/
+**/bin/
+**/obj/
+**/.gradle/
+**/target/
+**/.mvn/
+**/.venv/
+**/venv/
+**/env/
+**/.env/
+**/.pytest_cache/
+**/.cache/
+**/.npm/
+**/.yarn/
+**/.yarn-cache/
+**/Logs
+**/LogTest
+**/.angular
+
+# Ignore log files and databases
+**/*.log
+**/*.sqlite
+**/*.db
+
+# Ignore compiled files
+**/*.class
+**/*.exe
+**/*.dll
+**/*.so
+**/*.o
+**/*.a
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.jar
+**/*.war
+**/*.ear
+
+# Ignore environment files
+**/.env
+**/.env.local
+**/.env.development
+**/.env.test
+**/.env.production
+
+# Ignore coverage files
+**/.coverage
+**/.nyc_output
+
+# Ignore dependency lock files
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# Ignore temporary files
+**/*.tmp
+**/*.temp
+
+# Ignore macOS system files
+._*
+
+# Ignore Windows system files
+[Tt]humbs.db
+Desktop.ini
+
+# Ignore Linux system files
+*~
+
+# Ignore JetBrains IDE files
+.idea/
+**/*.iml
+
+# Ignore Visual Studio Code files
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Ignore Python files
+__pycache__/
+**/*.py[cod]
+*$py.class
+**/*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+**/*.egg-info/
+.installed.cfg
+**/*.egg
+MANIFEST
+
+# Ignore Rust files
+/target/
+**/**/*.rs.bk
+
+# Ignore Java files
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+hs_err_pid*
+
+# Ignore C/C++ files
+**/*.o
+**/*.a
+**/*.so
+**/*.out
+**/*.dSYM/
+
+# Ignore Go files
+/bin/
+/pkg/
+/exe/
+**/*.exe
+**/*.test
+**/*.prof
+
+# Ignore Ruby files
+/.bundle/
+/vendor/bundle
+**/*.gem
+/.ruby-version
+
+# Ignore Node.js files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+.env
+.env.*
+.dockerignore
+
+# Ignore Terraform files
+.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+**/*.tfplan
+
+# Ignore Kubernetes files
+kubeconfig
+**/*.kubeconfig
+
+# Ignore CI/CD files
+.circleci/
+.github/
+.gitlab-ci.yml
+.travis.yml
+.azure-pipelines/
+.github/
+.gitlab/
+.bitbucket-pipelines/
+
+# Ignore misc files
+**/*.bak
+**/*.backup
+**/*.orig
+**/*.rej
+**/*.sublime-workspace
+**/*.sublime-project
+**/*.un~
+**/*.zip
+**/*.tar.gz
+**/*.7z
+**/*.rar
+
+**/.vs

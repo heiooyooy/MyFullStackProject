@@ -1,0 +1,63 @@
+# Docker Compose 文件版本，建议使用 3.8 或更高版本
+version: '3.8'
+
+# 定义要运行的服务
+services:
+
+  # Elasticsearch 服务
+  es-node01:
+    # 使用官方的 Elasticsearch 镜像和指定的版本
+    image: elasticsearch:9.0.1
+    # 为容器指定一个固定的名称
+    container_name: es-node01
+    # 配置环境变量
+    environment:
+      # 设置为单节点模式，适合本地开发
+      - discovery.type=single-node
+      # 关闭安全特性，方便开发时无需用户名密码访问。请注意：生产环境切勿如此设置！
+      - xpack.security.enabled=false
+      # 为 Elasticsearch JVM 分配内存，避免占用过多宿主机资源。可根据你的机器配置调整。
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    # 定义数据卷，用于持久化 Elasticsearch 的数据
+    # 这样即使容器被删除，数据也不会丢失
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    # 端口映射：将主机的 9200 和 9300 端口映射到容器的对应端口
+    # 9200 用于 HTTP REST API, 9300 用于节点间通信
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    # 将此服务连接到我们定义的网络
+    networks:
+      - elastic-net
+
+  # Kibana 服务
+  kibana:
+    # 使用与 Elasticsearch 版本完全匹配的 Kibana 镜像
+    image: kibana:9.0.1
+    container_name: kibana
+    # 环境变量：告诉 Kibana 去哪里找 Elasticsearch
+    # "es-node01" 是上面我们定义的 Elasticsearch 服务的名称
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-node01:9200
+    # 端口映射：将主机的 5601 端口映射到容器的 5601 端口
+    ports:
+      - "5601:5601"
+    # 将此服务连接到同一网络
+    networks:
+      - elastic-net
+    # 设置依赖关系，确保 Kibana 会在 Elasticsearch 启动之后再启动
+    depends_on:
+      - es-node01
+
+# 定义顶层的数据卷
+volumes:
+  # 创建一个名为 es-data 的具名数据卷
+  es-data:
+    driver: local
+
+# 定义顶层的网络
+networks:
+  # 创建一个名为 elastic-net 的桥接网络
+  elastic-net:
+    driver: bridge

@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="2.11.0" />
+        <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.0.0" />
+        <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2-develop.2346" />
+        <PackageReference Include="MediatR" Version="13.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.7" />
+        <PackageReference Include="MongoDB.Driver" Version="3.4.2" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.1-dev-00953" />
+        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.47" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\sharedsettings.json">
+            <Link>sharedsettings.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+<!--    <ItemGroup>-->
+<!--        <Content Include="LuaScripts\*.lua">-->
+<!--            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>-->
+<!--        </Content>-->
+<!--    </ItemGroup>-->
+
+    <ItemGroup>
+        <EmbeddedResource Include="LuaScripts\*.lua" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Validators\" />
+    </ItemGroup>
+</Project>

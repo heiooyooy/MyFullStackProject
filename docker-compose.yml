@@ -1,0 +1,351 @@
+version: "3.8"
+
+services:
+  # ====================================================================
+  # 新增 1: API 网关 (Nginx) - 整个应用的唯一入口
+  # ====================================================================
+  api-gateway:
+    image: nginx:alpine
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80" # <-- 这是唯一需要暴露给主机的端口
+    volumes:
+      # 将我们上面创建的 nginx.conf 文件挂载到容器中
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - my-network
+    depends_on:
+      - my-react-app
+      - my-backend-server
+      - kafka-ui
+      # ...可以添加其他依赖
+
+  # ====================================================================
+  # 新增 2: 您的前端 React 应用
+  # ====================================================================
+  my-react-app:
+    image: my-react-app
+    build:
+      context: ./react-ts-vite # 指向你的前端项目文件夹
+      dockerfile: Dockerfile
+    container_name: my-react-app-container
+    restart: unless-stopped
+    networks:
+      - my-network
+
+  # ====================================================================
+  # 现有服务修改 - 移除不必要的端口映射
+  # ====================================================================
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    networks:
+      - my-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    # ports: # <-- 移除，Zookeeper 通常不需要从外部直接访问
+    #   - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_datalog:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: kafka
+    networks:
+      - my-network
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      # 保留 9092 端口，以便在开发时从主机直接连接 Kafka，但生产环境可以移除
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/usr/bin/kafka-topics --bootstrap-server kafka:29092 --list || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    networks:
+      - my-network
+    container_name: kafka-ui
+    # ports: # <-- 移除，将通过网关的 /kafka-ui/ 路径访问
+    #   - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+      - SERVER_SERVLET_CONTEXT_PATH=/kafka-ui
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    networks:
+      - my-network
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_DB: mydb
+    ports: # <-- 保留，方便开发时使用数据库客户端连接
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports: # <-- 保留，方便开发时使用 Redis 客户端连接
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-db:
+    image: mysql
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: "YourStrong!MysqlPassw0rd"
+      MYSQL_DATABASE: "myapp_db"
+    ports: # <-- 保留，方便开发时使用数据库客户端连接
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    networks:
+      - my-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "--password=YourStrong!MysqlPassw0rd",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongodb:
+    image: mongo
+    container_name: my-mongo
+    ports: # <-- 保留，方便开发时使用数据库客户端连接
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "mongo"
+      MONGO_INITDB_ROOT_PASSWORD: "pass123"
+      MONGO_INITDB_DATABASE: test
+    networks:
+      - my-network
+    healthcheck:
+      test: |
+        mongosh --host localhost --port 27017 --eval "db.adminCommand('ping')" || exit 1
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: my-rabbitmq
+    ports: # <-- 保留管理端口，但协议端口可以移除
+      - "5672:5672" # AMQP protocol port
+      - "15672:15672" # Management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: unless-stopped
+
+  es-node01:
+    image: elasticsearch:9.0.1
+    container_name: es-node01
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports: # <-- 保留，方便开发时直接访问 ES API
+      - "9200:9200"
+      # - "9300:9300" # 节点间通信，外部通常不需要
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -f http://localhost:9200/_cluster/health?wait_for_status=yellow || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - my-network
+
+  kibana:
+    image: kibana:9.0.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-node01:9200
+    # ports: # <-- 移除，将通过网关的 /kibana/ 路径访问
+    #   - "5601:5601"
+    networks:
+      - my-network
+    depends_on:
+      - es-node01
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    # ports: # <-- 移除，将通过网关的 /seq/ 路径访问
+    #   - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    volumes:
+      - seq-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: "/seqsvr/Client/seqcli node health -s http://localhost"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - my-network
+
+  my-backend-server:
+    image: my-backend-server
+    build:
+      # 构建上下文的路径（项目根目录）
+      context: ./BackendServer
+      # 指定使用的 Dockerfile
+      dockerfile: Dockerfile.BackendServer
+    #container_name: my-backend-server
+    # ports: # <-- 移除，将通过网关的 /api/ 路径访问
+    #   - "5000:5000"
+    volumes:
+      - ./logs:/App/Logs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__Port=5672
+      - RabbitMq__DispatchConsumersAsync=true
+      - MongoDB__ConnectionString=mongodb://mongo:pass123@mongodb:27017/?authSource=admin
+      - MongoDB__Database=test
+      - Kafka__BootstrapServers=kafka:29092
+      - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Username=postgres;Password=pass123;Database=mydb
+      - ConnectionStrings__RedisConnection=redis:6379
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
+      - Elasticsearch__Uri=es-node01:9200
+      - seq=seq:80
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      es-node01:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  my-kafka-worker-service:
+    image: my-kafka-worker-service
+    build:
+      # 构建上下文的路径（项目根目录）
+      context: ./BackendServer
+      # 指定使用的 Dockerfile
+      dockerfile: Dockerfile.KafkaWorkerService
+    container_name: my-kafka-worker-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Kafka__BootstrapServers=kafka:29092
+      - seq=seq:80
+    depends_on:
+      kafka:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+    networks:
+      - my-network
+
+volumes:
+  redis_data:
+  mysql_data:
+  mongo_data:
+  rabbitmq_data:
+  zookeeper_data:
+  zookeeper_datalog:
+  kafka_data:
+  pg_data:
+  es-data:
+  seq-data:
+
+networks:
+  my-network:
+    driver: bridge
