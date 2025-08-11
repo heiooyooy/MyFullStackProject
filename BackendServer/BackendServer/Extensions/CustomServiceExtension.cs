@@ -6,6 +6,7 @@ using Elastic.Clients.Elasticsearch;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure;
+using Infrastructure.DataAccess.Models;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +19,8 @@ using SharedModule.RabbitMQ;
 using SharedModule.Services;
 using StackExchange.Redis;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using Npgsql.NameTranslation;
 using SharedModule.MongoDBExp;
 
 namespace BackendServer.Extensions;
@@ -38,7 +41,7 @@ public static class CustomServiceExtension
         services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMq"));
         services.Configure<KafkaSettings>(configuration.GetSection("Kafka"));
         services.Configure<MongoDBSettings>(configuration.GetSection("MongoDB"));
-        
+
         // 2. 配置 MassTransit (连接到 RabbitMQ)
         services.AddMassTransit(x =>
         {
@@ -54,6 +57,7 @@ public static class CustomServiceExtension
         {
             throw new Exception("Elasticsearch URI is not configured.");
         }
+
         var settings = new ElasticsearchClientSettings(new Uri(esUri)).DefaultIndex("orders"); // 可以设置一个默认的索引名称
         var client = new ElasticsearchClient(settings);
         // 将客户端注册为单例服务
@@ -73,6 +77,27 @@ public static class CustomServiceExtension
         services.AddDbContext<MyDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("PostgresConnection"))
         );
+        var connectionString = configuration.GetConnectionString("PlaygroundConnection");
+
+        // Create a data source builder
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+
+        // Map the C# enum to the PostgreSQL enum type
+        // The second argument "order_status" is the name of the ENUM TYPE in PostgreSQL
+        dataSourceBuilder.MapEnum<ProductType>("product_type", new NpgsqlNullNameTranslator());
+        dataSourceBuilder.MapEnum<OrderStatus>("order_status", new NpgsqlNullNameTranslator()); // Use the names as-is);
+
+        // Build the data source
+        var dataSource = dataSourceBuilder.Build();
+
+        services.AddDbContext<LearnSqlContext>(options =>
+            options.UseNpgsql(dataSource, o =>
+            {
+                o.MapEnum<OrderStatus>("order_status");
+                o.MapEnum<ProductType>("product_type");
+                
+            })
+        );
 
         services.AddAuthentication(options =>
             {
@@ -90,7 +115,8 @@ public static class CustomServiceExtension
                     ValidIssuer = "my-api", // Must match your token's issuer
                     ValidAudience = "my-clients", // Must match your token's audience
                     IssuerSigningKey =
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes("6mWi2glc0/bOEZGLEJdQoEQqQioEusMlj/GXKceLCuc=")),
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes("6mWi2glc0/bOEZGLEJdQoEQqQioEusMlj/GXKceLCuc=")),
                     ClockSkew = TimeSpan.Zero
                 };
             });
@@ -144,7 +170,7 @@ public static class CustomServiceExtension
         services.AddSingleton<IKafkaProducer, KafkaProducer>();
         services.AddSingleton<SseNotificationService>();
         services.AddSingleton<MongoDBTestService>();
-        
+
         // 添加 FluentValidation 服务
         // 这会自动查找程序集中所有的 AbstractValidator<T> 并注册它们
         services.AddFluentValidationAutoValidation();

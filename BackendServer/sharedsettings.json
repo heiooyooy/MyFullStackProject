@@ -12,6 +12,7 @@
   },
   "ConnectionStrings": {
     "PostgresConnection": "Host=localhost;Port=5432;Username=postgres;Password=pass123;Database=mydb",
+    "PlaygroundConnection": "Host=localhost;Port=5432;Username=postgres;Password=pass123;Database=learn_sql",
     "RedisConnection": "localhost:6379",
     "RabbitMQ": "amqp://guest:guest@localhost:5672"
   },

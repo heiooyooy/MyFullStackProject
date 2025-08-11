@@ -11,9 +11,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{403FAFED-22B2-4909-B20F-B7EBFFE01A27}"
 	ProjectSection(SolutionItems) = preProject
 		sharedsettings.json = sharedsettings.json
-		docker-compose.yml = docker-compose.yml
 		Dockerfile.BackendServer = Dockerfile.BackendServer
 		Dockerfile.KafkaWorkerService = Dockerfile.KafkaWorkerService
+		..\docker-compose.yml = ..\docker-compose.yml
+		..\nginx.conf = ..\nginx.conf
+		Dockerfile.ElasticsearchService = Dockerfile.ElasticsearchService
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaWorkerService", "KafkaWorkerService\KafkaWorkerService.csproj", "{98CB0E93-3994-4A62-810F-7CAFFF1232FC}"

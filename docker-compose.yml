@@ -242,8 +242,9 @@ services:
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://es-node01:9200
-    # ports: # <-- 移除，将通过网关的 /kibana/ 路径访问
-    #   - "5601:5601"
+      - SERVER_BASEPATH=/kibana
+      # ports: # <-- 移除，将通过网关的 /kibana/ 路径访问
+      # - "5601:5601"
     networks:
       - my-network
     depends_on:
@@ -328,6 +329,41 @@ services:
       - seq=seq:80
     depends_on:
       kafka:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  my-elasticsearch-service:
+    image: my-elasticsearch-service
+    build:
+      # 构建上下文的路径（项目根目录）
+      context: ./BackendServer
+      # 指定使用的 Dockerfile
+      dockerfile: Dockerfile.ElasticsearchService
+    container_name: my-elasticsearch-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__Port=5672
+      - RabbitMq__DispatchConsumersAsync=true
+      - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Username=postgres;Password=pass123;Database=mydb
+      - ConnectionStrings__RedisConnection=redis:6379
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
+      - Kafka__BootstrapServers=kafka:29092
+      - seq=seq:80
+      - Elasticsearch__Uri=http://es-node01:9200
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      es-node01:
         condition: service_healthy
       seq:
         condition: service_healthy

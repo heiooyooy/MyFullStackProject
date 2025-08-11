@@ -4,7 +4,9 @@ using BackendServer.Middleware;
 using BackendServer.Services;
 using BackendServer.Utility;
 using Infrastructure;
+using Infrastructure.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -71,9 +73,6 @@ builder.Services.AddSingleton<LuaScriptProvider>();
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
-
-
-
 // 使用 Serilog 的请求日志中间件
 app.UseSerilogRequestLogging();
 

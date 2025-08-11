@@ -69,41 +69,45 @@ const Login = () => {
 
   return (
     <div>
-      <h2>
-        登录
-        {status === LOGIN_STATUS.Succeeded && (
-          <span>
-            <AiFillAlipayCircle size={"40px"} color="#1976d2" />
-          </span>
-        )}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">邮箱:</label>
-          <TextField
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password">密码:</label>
+      {status === LOGIN_STATUS.Succeeded && (
+        <span>
+          <AiFillAlipayCircle size={"40px"} color="#1976d2" />
+        </span>
+      )}
 
-          <TextField
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+      {status !== LOGIN_STATUS.Succeeded && (
+        <>
+          <h2>登录</h2>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email">邮箱:</label>
+              <TextField
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password">密码:</label>
 
-        <Button type="submit" disabled={status === LOGIN_STATUS.Loading}>
-          {status === LOGIN_STATUS.Loading ? "登录中..." : "登录"}
-        </Button>
-      </form>
+              <TextField
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <Button type="submit" disabled={status === LOGIN_STATUS.Loading}>
+              {status === LOGIN_STATUS.Loading ? "登录中..." : "登录"}
+            </Button>
+          </form>
+        </>
+      )}
+
       {/* 如果登录失败，显示从 store 中获取的错误信息 */}
       {status === LOGIN_STATUS.Failed && (
         <p style={{ color: "red" }}>{authError}</p>

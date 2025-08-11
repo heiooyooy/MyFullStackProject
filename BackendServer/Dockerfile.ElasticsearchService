@@ -1,0 +1,30 @@
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /source
+
+
+COPY BackendServer.sln .
+COPY BackendServer/BackendServer.csproj ./BackendServer/
+COPY SharedModule/SharedModule.csproj ./SharedModule/
+COPY RabbitMQWorker/RabbitMQWorker.csproj ./RabbitMQWorker/
+COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
+COPY OutboxProcessor/OutboxProcessor.csproj ./OutboxProcessor/
+COPY ElasticsearchService/ElasticsearchService.csproj ./ElasticsearchService/
+COPY KafkaWorkerService/KafkaWorkerService.csproj ./KafkaWorkerService/
+
+RUN dotnet restore "BackendServer.sln"
+
+COPY . .
+
+WORKDIR /source/ElasticsearchService
+RUN dotnet publish -c Release -o /app/publish --no-restore
+
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:5002
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "ElasticsearchService.dll"]

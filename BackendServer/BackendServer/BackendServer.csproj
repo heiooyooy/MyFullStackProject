@@ -57,8 +57,4 @@
     <ItemGroup>
         <EmbeddedResource Include="LuaScripts\*.lua" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Validators\" />
-    </ItemGroup>
 </Project>
