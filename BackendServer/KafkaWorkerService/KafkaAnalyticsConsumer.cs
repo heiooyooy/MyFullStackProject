@@ -28,7 +28,7 @@ public class KafkaAnalyticsConsumer : IDisposable
     }
 
     // 这个方法现在会立即返回，并将消费循环放到后台任务中
-    public async void StartConsuming(CancellationToken stoppingToken)
+    public async Task StartConsuming(CancellationToken stoppingToken)
     {
         _consumer.Subscribe("seckill_events");
         _logger.LogInformation("Subscribed to 'seckill_events'. Starting consumer loop on a new task.");
