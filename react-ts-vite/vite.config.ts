@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://localhost:9090",
+        target: "http://localhost",
         changeOrigin: true,
         secure: false, // 自签证书需要这一行
       },

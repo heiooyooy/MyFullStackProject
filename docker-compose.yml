@@ -59,32 +59,45 @@ services:
       start_period: 10s
 
   kafka:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:latest # Using latest Confluent image
     container_name: kafka
     networks:
       - my-network
-    depends_on:
-      zookeeper:
-        condition: service_healthy
+    # --- REMOVED Zookeeper 'depends_on' ---
     ports:
-      # 保留 9092 端口，以便在开发时从主机直接连接 Kafka，但生产环境可以移除
+      # Kept your port 9092 for host access
       - "9092:9092"
+      # NOTE: Port 9093 is for the new KRaft controller.
+      # It doesn't need to be exposed to the host, but is used internally.
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      # --- KRaft Configuration (Replaces Zookeeper) ---
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093" # Points to itself
+      CLUSTER_ID: "0f6d105f-2de7-442a-bea8-bd75fe4f9149" # <-- IMPORTANT! See below
+
+      # --- Listener Configuration (Updated for KRaft) ---
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # --- Your Application Settings (Kept as requested) ---
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      # --- REMOVED KAFKA_ZOOKEEPER_CONNECT ---
+      # --- REMOVED KAFKA_BROKER_ID (Replaced by KAFKA_NODE_ID) ---
+
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
+      # Your healthcheck is good and remains unchanged
       test:
         [
           "CMD-SHELL",
@@ -278,8 +291,8 @@ services:
       # 指定使用的 Dockerfile
       dockerfile: Dockerfile.BackendServer
     #container_name: my-backend-server
-    # ports: # <-- 移除，将通过网关的 /api/ 路径访问
-    #   - "5000:5000"
+    ports: # <-- 移除，将通过网关的 /api/ 路径访问
+      - "9090:9090"
     volumes:
       - ./logs:/App/Logs
     environment:
@@ -293,6 +306,7 @@ services:
       - MongoDB__Database=test
       - Kafka__BootstrapServers=kafka:29092
       - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Username=postgres;Password=pass123;Database=mydb
+      - ConnectionStrings__PlaygroundConnection=Host=postgres;Port=5432;Username=postgres;Password=pass123;Database=learn_sql
       - ConnectionStrings__RedisConnection=redis:6379
       - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
       - Elasticsearch__Uri=es-node01:9200

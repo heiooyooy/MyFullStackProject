@@ -16,8 +16,12 @@ RUN dotnet restore "BackendServer.sln"
 
 COPY . .
 
-WORKDIR /source/ElasticsearchService
-RUN dotnet publish -c Release -o /app/publish --no-restore
+WORKDIR /source
+# Publish the ElasticsearchService project explicitly. Avoid --no-restore here so
+# if restore didn't succeed previously the publish will attempt to restore the
+# project. Using the explicit csproj path avoids issues if the WORKDIR isn't
+# exactly where the project file is located in the build context.
+RUN dotnet publish "ElasticsearchService/ElasticsearchService.csproj" -c Release -o /app/publish
 
 
 

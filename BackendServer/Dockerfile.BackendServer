@@ -16,8 +16,11 @@ RUN dotnet restore "BackendServer.sln"
 
 COPY . .
 
-WORKDIR /source/BackendServer
-RUN dotnet publish -c Release -o /app/publish --no-restore
+WORKDIR /source
+# Publish the BackendServer project explicitly and allow publish to perform restore
+# if necessary. This avoids brittle behavior that can occur when relying on the
+# working directory and using --no-restore.
+RUN dotnet publish "BackendServer/BackendServer.csproj" -c Release -o /app/publish
 
 
 
