@@ -264,7 +264,7 @@ services:
       dockerfile: Dockerfile.BackendServer
     #container_name: my-backend-server
     ports: # <-- 移除，将通过网关的 /api/ 路径访问
-      - "9090:9090"
+      - "5000:5000"
     volumes:
       - ./logs:/App/Logs
     environment:
