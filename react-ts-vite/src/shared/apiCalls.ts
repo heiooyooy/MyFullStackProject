@@ -20,3 +20,18 @@ export const loginApi = async (
     throw error;
   }
 };
+
+export const registerUserApi = async (
+  credentials: LoginCredentials
+): Promise<{ message: string }> => {
+  try {
+    const response = await apiClient.post<{ message: string }>(
+      "/auth/register",
+      credentials
+    );
+    return response.data;
+  } catch (error) {
+    console.error("登录 API 调用失败:", error);
+    throw error;
+  }
+};

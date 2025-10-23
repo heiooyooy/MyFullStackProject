@@ -2,6 +2,11 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { signUpSchema, type SignUpFormValues } from "./validators";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { unwrapResult } from "@reduxjs/toolkit";
+import type { email } from "zod";
+import { loginUser, registerUser } from "../../shared/authSlice";
+import { useAppDispatch } from "../../shared/storehooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SignUpForm = () => {
   const {
@@ -26,6 +31,9 @@ const SignUpForm = () => {
   const passwordField = watch("password");
   const confirmPasswordField = watch("confirmPassword");
 
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     // 当任何字段发生变化时，清除 root 错误
     if (errors.root) {
@@ -34,14 +42,23 @@ const SignUpForm = () => {
   }, [passwordField, emailField, usernameField, confirmPasswordField]);
 
   const onSubmit = async (data: SignUpFormValues) => {
-    console.log("Submitting sign up form", data);
-    await new Promise<void>((res) =>
-      setTimeout(() => {
-        res();
-      }, 1000)
-    );
-    console.log("Submit successfully");
-    setError("root", { message: "Email is already taken" });
+    if (data.email && data.password) {
+      // 派发 loginUser thunk，并传入凭证
+      const resultAction = await dispatch(
+        registerUser({ email: data.email, password: data.password })
+      );
+      const token = unwrapResult(resultAction);
+      console.log(`result token is ${token}`);
+    }
+
+    // console.log("Submitting sign up form", data);
+    // await new Promise<void>((res) =>
+    //   setTimeout(() => {
+    //     res();
+    //   }, 1000)
+    // );
+    // console.log("Submit successfully");
+    // setError("root", { message: "Email is already taken" });
   };
 
   return (

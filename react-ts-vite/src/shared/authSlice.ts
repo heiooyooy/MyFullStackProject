@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiClient from "./apiClient";
-import { loginApi } from "./apiCalls";
+import { loginApi, registerUserApi } from "./apiCalls";
 import { useQueryClient } from "@tanstack/react-query";
 
 const userToken = localStorage.getItem("token");
@@ -42,6 +42,14 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const registerUser = createAsyncThunk(
+  "auth/register",
+  async (credentials: LoginCredentials, { rejectWithValue }) => {
+    const { message } = await registerUserApi(credentials);
+    return message;
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -57,6 +65,18 @@ const authSlice = createSlice({
         state.token = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.status = LOGIN_STATUS.Failed;
+        state.error = action.payload;
+      })
+      .addCase(registerUser.pending, (state) => {
+        state.status = LOGIN_STATUS.Loading;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.status = LOGIN_STATUS.Succeeded;
+        state.token = action.payload;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
         state.status = LOGIN_STATUS.Failed;
         state.error = action.payload;
       });
