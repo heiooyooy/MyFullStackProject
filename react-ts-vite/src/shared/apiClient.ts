@@ -1,6 +1,7 @@
 // src/lib/apiClient.ts
 
-import axios from "axios";
+import type { BaseQueryFn } from "@reduxjs/toolkit/query";
+import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 
 // 1. 创建一个 axios 实例
 const apiClient = axios.create({
@@ -44,3 +45,38 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+// Create the custom baseQuery
+export const axiosBaseQuery =
+  (
+    { baseUrl }: { baseUrl: string } = { baseUrl: "" }
+  ): BaseQueryFn<
+    {
+      url: string;
+      method: AxiosRequestConfig["method"];
+      data?: AxiosRequestConfig["data"];
+      params?: AxiosRequestConfig["params"];
+    },
+    unknown,
+    unknown
+  > =>
+  async ({ url, method, data, params }) => {
+    try {
+      // Use your apiClient instance
+      const result = await apiClient({
+        url: url, // baseUrl is already in apiClient
+        method,
+        data,
+        params,
+      });
+      return { data: result.data };
+    } catch (axiosError) {
+      const err = axiosError as AxiosError;
+      return {
+        error: {
+          status: err.response?.status,
+          data: err.response?.data || err.message,
+        },
+      };
+    }
+  };

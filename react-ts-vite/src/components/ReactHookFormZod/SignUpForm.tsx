@@ -7,6 +7,7 @@ import type { email } from "zod";
 import { loginUser, registerUser } from "../../shared/authSlice";
 import { useAppDispatch } from "../../shared/storehooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRegisterUserMutation } from "../../shared/todoRTKQuery";
 
 const SignUpForm = () => {
   const {
@@ -33,6 +34,7 @@ const SignUpForm = () => {
 
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
+  const [registerUserMutation] = useRegisterUserMutation();
 
   useEffect(() => {
     // 当任何字段发生变化时，清除 root 错误
@@ -43,12 +45,17 @@ const SignUpForm = () => {
 
   const onSubmit = async (data: SignUpFormValues) => {
     if (data.email && data.password) {
-      // 派发 loginUser thunk，并传入凭证
-      const resultAction = await dispatch(
-        registerUser({ email: data.email, password: data.password })
-      );
-      const token = unwrapResult(resultAction);
-      console.log(`result token is ${token}`);
+      // const resultAction = await dispatch(
+      //   registerUser({ email: data.email, password: data.password })
+      // );
+      // const token = unwrapResult(resultAction);
+      // console.log(`result token is ${token}`);
+
+      const message = await registerUserMutation({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+      console.log("Succeeded:", message);
     }
 
     // console.log("Submitting sign up form", data);
