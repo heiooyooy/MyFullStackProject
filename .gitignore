@@ -54,6 +54,7 @@ Thumbs.db
 **/*.jar
 **/*.war
 **/*.ear
+**/*.sln.DotSettings.user
 
 # Ignore environment files
 **/.env
@@ -197,3 +198,4 @@ kubeconfig
 **/*.rar
 
 **/.vs
+BackendServer/BackendServer.sln.DotSettings.user

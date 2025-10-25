@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -88,5 +90,43 @@ public class AuthController : ControllerBase
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    [HttpGet("login-cookie")]
+    public async Task<IActionResult> Login(string username, string password)
+    {
+        // --- 在真实应用中，这里应该验证用户名和密码 ---
+        if (username == "admin" && password == "123456")
+        {
+            // 1. 创建用户的声明 (Claims)
+            // Claims 是描述用户身份的信息，比如用户名、角色等
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Role, "Administrator"),
+                new Claim("LastLoginTime", DateTime.UtcNow.ToString())
+            };
+
+            // 2. 创建身份标识 (ClaimsIdentity)
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // 3. 创建身份主体 (ClaimsPrincipal)
+            var authProperties = new AuthenticationProperties
+            {
+                // IsPersistent = true: 创建一个持久化 Cookie (浏览器关闭后依然存在)
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
+            };
+
+            // 4. 执行登录，这会创建加密的认证 Cookie
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return Ok($"Welcome, {username}! You are logged in.");
+        }
+
+        return Unauthorized("Invalid username or password.");
     }
 }
