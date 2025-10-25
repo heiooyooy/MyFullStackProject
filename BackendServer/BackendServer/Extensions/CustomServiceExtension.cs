@@ -95,7 +95,6 @@ public static class CustomServiceExtension
             {
                 o.MapEnum<OrderStatus>("order_status");
                 o.MapEnum<ProductType>("product_type");
-                
             })
         );
 
