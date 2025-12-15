@@ -5,6 +5,7 @@ using BackendServer.Services;
 using BackendServer.Utility;
 using Infrastructure;
 using Infrastructure.DataAccess.Models;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Exporter;
@@ -71,6 +72,9 @@ builder.Host.UseSerilog();
 builder.Services.AddCustomServices(builder.Configuration);
 builder.Services.AddSingleton<LuaScriptProvider>();
 
+builder.Services.AddGrpc().AddJsonTranscoding();
+
+
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 // 使用 Serilog 的请求日志中间件
@@ -107,5 +111,7 @@ app.UseAuthentication(); // Important: must be before UseAuthorization
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<GreeterGrpcServiceImpl>();
 
 app.Run();
