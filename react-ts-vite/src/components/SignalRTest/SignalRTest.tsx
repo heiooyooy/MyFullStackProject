@@ -38,13 +38,13 @@ const SignalRTest = () => {
 
   return (
     // 全局容器：深灰色背景，白色文字，使用 flex 布局，最小高度占满整个屏幕
-    <div className="bg-gray-900 text-white min-h-150 font-sans">
+    <div className="bg-gray-900 text-white min-h-80 font-sans">
       {/* 内容容器：设置最大宽度，水平居中 */}
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="text-center mb-8">
           {/* 主标题：大号字体，粗体，渐变色文字效果，增加底部间距 */}
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-500">
-            秒杀活动实时战报
+            SignalR Test
           </h1>
         </header>
 
