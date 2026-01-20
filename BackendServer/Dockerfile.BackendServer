@@ -32,7 +32,7 @@ ENV JWT__ISSUER="https://www.dejun-tu.com"
 ENV JWT__AUDIENCE="https://www.dejun-tu.com"
 ENV JWT__KEY="6mWi2glc0/bOEZGLEJdQoEQqQioEusMlj/GXKceLCuc="
 ENV Deepseek__ApiKey="sk-ef5a5ce6cb824ce6b0d3b2e7c30c3186"
-ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_URLS=http://+:5005
 COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "BackendServer.dll"]

@@ -16,9 +16,12 @@ services:
     networks:
       - my-network
     depends_on:
-      - my-react-app
-      - my-backend-server
-      - kafka-ui
+      my-react-app:
+        condition: service_healthy
+      my-backend-server:
+        condition: service_started
+      kafka-ui:
+        condition: service_started
       # ...可以添加其他依赖
 
   # ====================================================================
@@ -33,6 +36,11 @@ services:
     restart: unless-stopped
     networks:
       - my-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:latest # Using latest Confluent image
@@ -107,7 +115,7 @@ services:
     ports: # <-- 保留，方便开发时使用数据库客户端连接
       - "5433:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql
 
   redis:
     image: redis:alpine
@@ -264,7 +272,7 @@ services:
       dockerfile: Dockerfile.BackendServer
     #container_name: my-backend-server
     ports: # <-- 移除，将通过网关的 /api/ 路径访问
-      - "5000:5000"
+      - "5005:5000"
     volumes:
       - ./logs:/App/Logs
     environment:
