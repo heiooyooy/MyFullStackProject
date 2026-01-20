@@ -17,7 +17,7 @@ RUN dotnet restore "BackendServer.sln"
 COPY . .
 
 WORKDIR /source/KafkaWorkerService
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
 
 
 
