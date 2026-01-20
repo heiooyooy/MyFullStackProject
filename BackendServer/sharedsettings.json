@@ -26,5 +26,5 @@
   "Elasticsearch": {
     "Uri": "http://localhost:9200"
   },
-  "seq": "http://localhost:5341"
+  "seq": "localhost:5341"
 }

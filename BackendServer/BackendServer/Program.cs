@@ -50,24 +50,25 @@ Log.Logger = new LoggerConfiguration()
     //     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}") // 自定义输出格式
     .CreateBootstrapLogger();
 
-
+// 2. Ensure it has a protocol (handle cases where config might missing http://)
+var seqHost = seqAddress.StartsWith("http") ? seqAddress : $"http://{seqAddress}";
 builder.Host.UseSerilog();
-// builder.Services.AddOpenTelemetry()
-//     .ConfigureResource(r => r.AddService("My Service"))
-//     .WithTracing(tracing =>
-//     {
-//         tracing.AddSource("Example.Source");
-//         tracing.AddAspNetCoreInstrumentation();
-//         tracing.AddHttpClientInstrumentation();
-//         tracing.AddConsoleExporter();
-//         tracing.AddOtlpExporter(opt =>
-//         {
-//             opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces");
-//             opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-//             opt.Headers = "X-Seq-ApiKey=Ny2kLYmaWW4mIRkcMJ7f";
-//         });
-//     }) ;
-//
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService("BackendServer"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddSource("Example.Source");
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddHttpClientInstrumentation();
+        tracing.AddConsoleExporter();
+        tracing.AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri($"{seqHost}/ingest/otlp/v1/traces");
+            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+            opt.Headers = "X-Seq-ApiKey=GENvUpmDDrLMuDdrXYfn";
+        });
+    }) ;
+
 
 builder.Services.AddCustomServices(builder.Configuration);
 builder.Services.AddSingleton<LuaScriptProvider>();
