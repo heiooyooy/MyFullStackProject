@@ -90,6 +90,27 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  init-kafka:
+      image: confluentinc/cp-kafka:latest
+      container_name: init-kafka
+      depends_on:
+        kafka:
+          condition: service_healthy # Waits for the healthcheck defined in your kafka service
+      networks:
+        - my-network
+      entrypoint: [ '/bin/sh', '-c' ]
+      command: |
+        "
+        # blocks until kafka is reachable
+        kafka-topics --bootstrap-server kafka:29092 --list
+
+        echo -e 'Creating kafka topics'
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic seckill_events --replication-factor 1 --partitions 1
+
+        echo -e 'Successfully created the following topics:'
+        kafka-topics --bootstrap-server kafka:29092 --list
+        "
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     networks:
@@ -112,7 +133,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass123
       POSTGRES_DB: mydb
-    ports: # <-- 保留，方便开发时使用数据库客户端连接
+    ports:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql
